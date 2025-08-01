@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTC Trading Signal Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 10px;
+            border: none;
+            background: #2c3e50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+        
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3498db;
+        }
+        
+        .signal-btn {
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .signal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .signal-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .signal-result {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .buy {
+            color: #2ecc71;
+            animation: pulse 1s infinite;
+        }
+        
+        .sell {
+            color: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        .timestamp {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        .disclaimer {
+            background: rgba(231, 76, 60, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: center;
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            opacity: 0.6;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .market-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .market-info div {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 5px;
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .signal-result {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> OTC TRADING SIGNAL BOT</h1>
+            <p>Generate signals for Quotex OTC markets</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-group">
+                <label for="pairSelector"><i class="fas fa-exchange-alt"></i> SELECT OTC PAIR</label>
+                <select id="pairSelector">
+                    <option value="EURUSD">EUR/USD</option>
+                    <option value="GBPUSD">GBP/USD</option>
+                    <option value="USDJPY">USD/JPY</option>
+                    <option value="AUDUSD">AUD/USD</option>
+                    <option value="USDCHF">USD/CHF</option>
+                    <option value="USDCAD">USD/CAD</option>
+                    <option value="NZDUSD">NZD/USD</option>
+                    <option value="EURGBP">EUR/GBP</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="timeframeSelector"><i class="fas fa-clock"></i> SELECT TIMEFRAME</label>
+                <select id="timeframeSelector">
+                    <option value="5">5 Seconds</option>
+                    <option value="10">10 Seconds</option>
+                    <option value="15">15 Seconds</option>
+                    <option value="20">20 Seconds</option>
+                    <option value="30">30 Seconds</option>
+                    <option value="60">1 Minute</option>
+                    <option value="300">5 Minutes</option>
+                </select>
+            </div>
+            
+            <button id="signalBtn" class="signal-btn">
+                <i class="fas fa-bolt"></i> GENERATE SIGNAL
+            </button>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <p>Analyzing market data...</p>
+            </div>
+            
+            <div class="result-container">
+                <p>Your signal will appear here</p>
+                <div id="signalResult" class="signal-result">- - -</div>
+                <div id="timestamp" class="timestamp"></div>
+            </div>
+            
+            <div class="market-info">
+                <div><i class="fas fa-trend-up"></i> Trend: <span id="trendIndicator">Neutral</span></div>
+                <div><i class="fas fa-bolt"></i> Volatility: <span id="volatilityIndicator">Medium</span></div>
+            </div>
+            
+            <div class="disclaimer">
+                <p><i class="fas fa-exclamation-triangle"></i> Disclaimer: This is a demo tool for educational purposes only. Trading involves significant risk. Past performance is not indicative of future results.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>OTC Trading Signal Bot &copy; 2023 | For demonstration purposes only</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const signalBtn = document.getElementById('signalBtn');
+            const signalResult = document.getElementById('signalResult');
+            const timestamp = document.getElementById('timestamp');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const trendIndicator = document.getElementById('trendIndicator');
+            const volatilityIndicator = document.getElementById('volatilityIndicator');
+            
+            // OTC pairs with their details
+            const otcPairs = {
+                'EURUSD': { name: 'Euro/US Dollar', volatility: 'High' },
+                'GBPUSD': { name: 'British Pound/US Dollar', volatility: 'High' },
+                'USDJPY': { name: 'US Dollar/Japanese Yen', volatility: 'Medium' },
+                'AUDUSD': { name: 'Australian Dollar/US Dollar', volatility: 'High' },
+                'USDCHF': { name: 'US Dollar/Swiss Franc', volatility: 'Medium' },
+                'USDCAD': { name: 'US Dollar/Canadian Dollar', volatility: 'Medium' },
+                'NZDUSD': { name: 'New Zealand Dollar/US Dollar', volatility: 'High' },
+                'EURGBP': { name: 'Euro/British Pound', volatility: 'Medium' }
+            };
+            
+            // Timeframes with their labels
+            const timeframes = {
+                '5': '5 Seconds',
+                '10': '10 Seconds',
+                '15': '15 Seconds',
+                '20': '20 Seconds',
+                '30': '30 Seconds',
+                '60': '1 Minute',
+                '300': '5 Minutes'
+            };
+            
+            signalBtn.addEventListener('click', generateSignal);
+            
+            function generateSignal() {
+                const pair = document.getElementById('pairSelector').value;
+                const timeframe = document.getElementById('timeframeSelector').value;
+                
+                // Show loading indicator
+                signalResult.textContent = "- - -";
+                signalResult.className = "";
+                timestamp.textContent = "";
+                loadingIndicator.style.display = 'block';
+                
+                // Simulate analysis delay
+                setTimeout(() => {
+                    // Generate random signal (Buy/Sell)
+                    const randomSignal = Math.random() > 0.5 ? 'BUY' : 'SELL';
+                    
+                    // Determine trend based on signal
+                    const trend = randomSignal === 'BUY' ? 'Bullish' : 'Bearish';
+                    
+                    // Get pair volatility
+                    const volatility = otcPairs[pair].volatility;
+                    
+                    // Update indicators
+                    trendIndicator.textContent = trend;
+                    volatilityIndicator.textContent = volatility;
+                    
+                    // Set trend indicator color
+                    trendIndicator.style.color = trend === 'Bullish' ? '#2ecc71' : '#e74c3c';
+                    
+                    // Display result with animation
+                    signalResult.textContent = `${randomSignal} ${pair}`;
+                    signalResult.className = randomSignal.toLowerCase();
+                    
+                    // Add timestamp
+                    const now = new Date();
+                    timestamp.textContent = `Signal generated at ${now.toLocaleTimeString()} for ${timeframes[timeframe]}`;
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Add visual feedback
+                    signalBtn.innerHTML = `<i class="fas fa-check"></i> SIGNAL GENERATED!`;
+                    signalBtn.style.background = 'linear-gradient(to right, #27ae60, #2ecc71)';
+                    
+                    // Reset button after delay
+                    setTimeout(() => {
+                        signalBtn.innerHTML = `<i class="fas fa-bolt"></i> GENERATE SIGNAL`;
+                        signalBtn.style.background = 'linear-gradient(to right, #3498db, #2ecc71)';
+                    }, 3000);
+                    
+                }, 2000); // Simulated analysis time
+            }
+            
+            // Initialize with random trend and volatility
+            trendIndicator.textContent = 'Neutral';
+            volatilityIndicator.textContent = 'Medium';
+        });
+    </script>
+</body>
+</html>
